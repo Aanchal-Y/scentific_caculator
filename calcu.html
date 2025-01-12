@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scientific Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f4f4f9;
+    }
+    .calculator {
+      width: 320px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      padding: 20px;
+    }
+    .display {
+      width: 100%;
+      height: 50px;
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+      text-align: right;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background: #f9f9f9;
+    }
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+    button {
+      font-size: 1.2rem;
+      padding: 15px;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    button.function {
+      background: #28a745;
+    }
+    button.function:hover {
+      background: #1c7a30;
+    }
+    button.clear {
+      background: #dc3545;
+    }
+    button.clear:hover {
+      background: #a71d2a;
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <input type="text" class="display" id="display" readonly />
+    <div class="buttons">
+      <button>7</button>
+      <button>8</button>
+      <button>9</button>
+      <button>/</button>
+      <button class="function">sqrt</button>
+      <button>4</button>
+      <button>5</button>
+      <button>6</button>
+      <button>*</button>
+      <button class="function">x^2</button>
+      <button>1</button>
+      <button>2</button>
+      <button>3</button>
+      <button>-</button>
+      <button class="function">x^y</button>
+      <button>0</button>
+      <button>.</button>
+      <button class="function">+/-</button>
+      <button>+</button>
+      <button>=</button>
+      <button class="function">sin</button>
+      <button class="function">cos</button>
+      <button class="function">tan</button>
+      <button class="function">log</button>
+      <button class="function">ln</button>
+      <button class="clear">C</button>
+    </div>
+  </div>
+
+  <script>
+    const display = document.getElementById('display');
+    let input = "";
+
+    document.querySelectorAll('button').forEach(button => {
+      button.addEventListener('click', () => {
+        const value = button.textContent;
+
+        if ("0123456789.".includes(value)) {
+          input += value;
+        } else if ("+-*/".includes(value)) {
+          input += ` ${value} `;
+        } else if (value === "=") {
+          try {
+            input = evaluateExpression(input);
+          } catch (error) {
+            input = "Error";
+          }
+        } else if (value === "C") {
+          input = "";
+        } else if (value === "+/-") {
+          input = toggleSign(input);
+        } else {
+          input = handleFunction(input, value);
+        }
+
+        display.value = input;
+      });
+    });
+
+    function evaluateExpression(expression) {
+  try {
+    
+    const sanitizedExpression = expression
+      .replace(/(\d+)\s*\^\s*(\d+)/g, (_,base,exponent) => `Math.pow(${base}, ${exponent})`)
+      .replace(/[^0-9+\-*/().\s]/g, ""); 
+
+   
+    const result = Function(`"use strict"; return (${sanitizedExpression});`)();
+    
+    
+    return +result.toFixed(10);
+  } catch (error) {
+    return "Error";
+  }
+}
+
+
+    function toggleSign(value) {
+      if (!value) return value;
+      if (value.startsWith("-")) {
+        return value.slice(1);
+      } else {
+        return "-" + value;
+      }
+    }
+
+    function handleFunction(input, func) {
+      try {
+        const number = parseFloat(input) || 0;
+        switch (func) {
+          case "sqrt":
+            return Math.sqrt(number).toFixed(10);
+          case "sin":
+            return Math.sin((number * Math.PI) / 180).toFixed(10);
+          case "cos":
+            return Math.cos((number * Math.PI) / 180).toFixed(10);
+          case "tan":
+            return Math.tan((number * Math.PI) / 180).toFixed(10);
+          case "log":
+            return Math.log10(number).toFixed(10);
+          case "ln":
+            return Math.log(number).toFixed(10);
+          case "x^2":
+            return (number ** 2).toFixed(10);
+          default:
+            return input;
+        }
+      } catch {
+        return "Error";
+      }
+    }
+  </script>
+</body>
+</html>
